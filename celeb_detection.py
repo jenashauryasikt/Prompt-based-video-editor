@@ -137,8 +137,8 @@ class CelebrityDetection:
 
 def test1():
     ## Enter your AWS credentials here
-    aws_access_key = 'AKIA6ODU75CFLURRGWGH'
-    aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
+    aws_access_key = 'your_key'
+    aws_secret_key = 'your_key'
     video_path = 'downloads/Post-Qualifying Drivers Press conference  2024 Monaco Grand Prix.mp4'
     intervals_path = 'speaker_intervals.json'
     output_file = 'final_output.json'
@@ -148,8 +148,8 @@ def test1():
 
 def test2():
     # Enter your AWS credentials here
-    aws_access_key = 'AKIA6ODU75CFLURRGWGH'
-    aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
+    aws_access_key = 'your_key'
+    aws_secret_key = 'your_key'
     video_path = 'video/Tiger Woods returns to Augusta National  Press Conference  CBS Sports.mp4'
     intervals_path = 'speaker_intervals.json'
     output_file = 'final_output_tiger.json'
