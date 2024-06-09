@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 import uuid
+import ast
 
 import spacy
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
@@ -278,15 +279,81 @@ def gpt4o_conv_qas(json_path, task_id):
         "output_file": output_file
     }
 
+def convert_to_json(response):
+    # Ensure response is a valid JSON string
+    response_str = json.dumps(response)
+    response_str = response_str.replace("'", '"')
+    print("response_str: ", response_str, '\n')
+    # Parse the JSON string to a dictionary
+    response_dict = json.loads(response_str)
+
+    print("response_ dict: ", response_dict, '\n')
+    
+    # Convert source_documents to langchain.schema.Document objects
+    source_documents = response_dict['source_documents']
+    for i, doc in enumerate(source_documents):
+        response_dict['source_documents'][i] = Document(
+            page_content=doc['page_content'],
+            metadata=doc['metadata']
+        )
+    
+    return response_dict
+
+def sanity_check(prompt, response, model="gpt-4o"):
+    template = r"""You are an expert sanity checker bot for a sport press conference summarization and Highlight Generation tool.
+    In this tool, the user gives a prompt about how the press conference should be summarized or what highlights should be generated.
+    You will be given both the original prompt and the response of the tool and decide whether the response is relevant to the prompt in the most accurate and concise way possible.
+    If the response is relevant to the prompt, then return the response["source_documents"] as an array. Do not make any changes to the response.
+    If the response is not relevant to the prompt, then remove the document object within the response that is not relevant to the prompt and return only the updated response["source_documents"] as an array and nothing else.
+    If you are unsure about relevance, then return the response as is.
+
+    Example of final response object to be returned = '''[doc1, doc2, doc3]''', where each doc is a langchain.schema.Document object converted into a JSON object.
+
+    A good removal of a document object  = '''[doc1, doc3]''', where doc2 is not relevant to the prompt.
+
+    Prompt: {prompt}
+    Response: {response}
+    """
+    print("response: ", response, '\n')
+    PROMPT = PromptTemplate(
+        template=template, input_variables=["prompt", "response"]
+    )
+    llm = ChatOpenAI(temperature=0, model=model)
+    checker = LLMChain(
+        llm=llm,
+        prompt=PROMPT
+        )
+    final_response = checker.run({"prompt": prompt, "response": response})
+    # print(final_response[3:-3])
+    print("final_response : ", final_response, '\n')
+    data = json.loads(final_response[3:-3])
+
+    # Convert each dictionary in the list to a Document object
+    documents = [Document(page_content=item['page_content'], metadata=item['metadata']) for item in data]
+
+    # Verify the output
+    for doc in documents:
+        print(f"Page Content: {doc.page_content}, Metadata: {doc.metadata}")
+    final_response = {
+        "source_documents": documents
+    } 
+    print("final_response decoded: ", final_response, '\n')
+    return final_response
+
 def gpt4o_conv_chain(question, llm_data):
     reply = decide_long_short(question)
     if reply == 'long':
         response = conversational_prompt(llm_data["long_chain_qa"], question)
     elif reply == 'short':
         response = conversational_prompt(llm_data["short_chain_qa"], question)
+    response = sanity_check(question, response)
     generate_output_json(reply, response, llm_data["metadata"], llm_data["transcript"], llm_data["output_file"])
 
-
+if __name__ == "__main__":
+    json_path = 'refine_transcripts/ABCDE0.json'  # Update this path to your input JSON file
+    task_id = 'test'
+    llm_data = gpt4o_conv_qas(json_path, task_id)
+    gpt4o_conv_chain("Thoughts on Bruno Fernandes and his ability to play every game at a high level.", llm_data)
 # def gpt4o_conv_chain(json_path):
 #     # session_id = str(uuid.uuid4())
 #     metadata, transcript = load_json(json_path)
