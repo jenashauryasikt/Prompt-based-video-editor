@@ -22,10 +22,10 @@ from huggingface_hub import login
 nlp = spacy.load("en_core_web_sm")
 
 # Set OpenAI API key
-os.environ['OPENAI_API_KEY'] = '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'
+os.environ['OPENAI_API_KEY'] = 'your_key'
 
 # Set Hugging Face API key
-hf_access_token = "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"
+hf_access_token = "your_key"
 os.environ["HF_ACCESS_TOKEN"] = hf_access_token
 
 login(hf_access_token)
