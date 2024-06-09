@@ -155,11 +155,3 @@ def generate_clipped_video(video_file_path, json_file_path, output_video_path):
     clipper.generate_clipped_video(output_video_path=output_video_path)
 
     return
-
-
-
-
-
-
-
-        

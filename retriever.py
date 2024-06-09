@@ -21,8 +21,10 @@ from huggingface_hub import login
 # Load spaCy's English language model
 nlp = spacy.load("en_core_web_sm")
 
+# Set OpenAI API key
 os.environ['OPENAI_API_KEY'] = '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'
 
+# Set Hugging Face API key
 hf_access_token = "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"
 os.environ["HF_ACCESS_TOKEN"] = hf_access_token
 
@@ -96,7 +98,7 @@ def decide_long_short(question, model="gpt-4o"):
 # Process user prompts and retrieve relevant portions of the transcript
 def process_prompt(reply, store, memory, model="gpt-4o"):
     store.persist() #check
-    if reply=='long':
+    if reply=='long': #objective
         system_template = r"""You are a bot that finds the most relevant portions of the transcript by focusing on the objectivity of the context provided by the user prompt.
         Define a question as a spoken line with the speaker id as interviewer. Define an answer as a spoken line by the person being interviewed that is not the interviewer. 
         Each document is a question-answer pair. If the document is relevant, retrieve the whole document.
@@ -105,7 +107,7 @@ def process_prompt(reply, store, memory, model="gpt-4o"):
         
         {context}
         """
-    if reply=='short':
+    if reply=='short': #subjective
         system_template = r"""You are a bot that finds the most relevant portions of the transcript by focusing on the subjectivity of the theme of the user prompt.
         You can return multiple relevant portions of the transcript that fit the user prompt.
         Do not retrieve portions that are full of filler words or do not make coherent sense as a phrase, sentence or sentences.
@@ -143,49 +145,6 @@ def process_prompt(reply, store, memory, model="gpt-4o"):
     )
 
     return chain_qa
-
-
-# Process user prompts and retrieve relevant portions of the transcript
-# def short_process_prompt(store, question, model="gpt-4o"):
-#     store.persist() #check
-#     system_template = r"""You are a bot that finds the most relevant portions of the transcript following the theme of the user prompt.
-#     You can return multiple relevant portions of the transcript that fit the user prompt.
-#     The portions that you retrieve from the transcript do not need to fully cover page content of retrieved documents, they can and likely will be a part of the page content.
-#     You do not paraphrase the portions that you extract and present them as they are without any extra description provided by you.
-
-#     {context}
-
-#     Question: {question}
-#     """
-
-#     PROMPT = PromptTemplate(
-#         template=system_template, input_variables=["context", "question"]
-#     )
-
-#     llm = ChatOpenAI(temperature=0, model=model)
-#     # chain_qa = RetrievalQA.from_chain_type(
-#     #     llm=llm,
-#     #     chain_type="stuff",
-#     #     retriever=store.as_retriever(),
-#     #     chain_type_kwargs={"prompt": PROMPT, },
-#     #     return_source_documents=True,
-#     # )
-#     responses = {'source_documents': [], 'results': []}
-#     source_documents = []
-#     results = []
-#     for doc in store.as_retriever().get_relevant_documents(question):
-#         context = doc.page_content
-#         print(doc.page_content)
-#         prompt = PROMPT.format(context=context, question=question) # CHECK
-#         # print("Prompt in short is:",prompt)
-#         response = llm.invoke(prompt) # CHECK
-#         # print("Respones in short is:",response)
-#         source_documents.append(doc)
-#         results.append(response)
-#     responses['source_documents'] = source_documents
-#     responses['results'] = results
-
-#     return responses
 
 def conversational_prompt(chain_qa, prompt):
     response = chain_qa({"question": prompt})
@@ -320,7 +279,6 @@ def sanity_check(prompt, response, model="gpt-4o"):
     documents = [Document(page_content=item['page_content'], metadata=item['metadata']) for item in data]
 
     # Verify the output
-
     final_response = {
         "source_documents": documents
     } 
