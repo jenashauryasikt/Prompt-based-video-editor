@@ -292,7 +292,7 @@ def gpt4o_conv_qas(json_path, task_id):
 def sanity_check(prompt, response, model="gpt-4o"):
     template = r"""You are an expert sanity checker bot for a sport press conference summarization and Highlight Generation tool.
     In this tool, the user gives a prompt about how the press conference should be summarized or what highlights should be generated.
-    You will be given both the original prompt and the response of the tool and decide whether the response is relevant to the prompt in the most accurate and concise way possible.
+    You will be given both the original prompt and the response of the tool and you have to decide whether the response is relevant to the prompt in the most accurate and concise way possible.
     If the response is relevant to the prompt, then return the response["source_documents"] as an array. Do not make any changes to the response.
     If the response is not relevant to the prompt, then remove the document object within the response that is not relevant to the prompt and return only the updated response["source_documents"] as an array and nothing else.
     If you are unsure about relevance, then return the response as is.
@@ -304,7 +304,6 @@ def sanity_check(prompt, response, model="gpt-4o"):
     Prompt: {prompt}
     Response: {response}
     """
-    print("response: ", response, '\n')
     PROMPT = PromptTemplate(
         template=template, input_variables=["prompt", "response"]
     )
@@ -328,6 +327,30 @@ def sanity_check(prompt, response, model="gpt-4o"):
   
     return final_response
 
+def summarizer(prompt, transcript, title, model="gpt-4o"):
+    template = r"""You are an expert sports creative writer for a sport press conference summarization and Highlight Generation tool.
+    In this tool, the user gives a prompt about how the press conference should be summarized or what highlights should be generated. 
+    The tool extracts and generates a filtered and refined transcript from the full press conference.
+    You will be given the prompt, the title of the press conference, and the corresponding filtered transcript from the tool.
+    Based on these inputs you have to create a summary for the transcript that is closely aligned with the prompt in an accurate and concise manner.
+    Only use content from the transcript for the summary. Do not add anything on your own.
+
+    Prompt: {prompt}
+    Video Title: {title}
+    Transcript: {transcript}
+    """
+    PROMPT = PromptTemplate(
+        template=template, input_variables=["prompt", "title", "transcript"]
+    )
+    llm = ChatOpenAI(temperature=0.2, model=model)
+    checker = LLMChain(
+        llm=llm,
+        prompt=PROMPT
+        )
+    final_response = checker.run({"prompt": prompt, "title": title, "transcript": transcript})
+
+    return final_response
+
 def gpt4o_conv_chain(question, llm_data):
     reply = decide_long_short(question)
     if reply == 'long':
@@ -335,4 +358,9 @@ def gpt4o_conv_chain(question, llm_data):
     elif reply == 'short':
         response = conversational_prompt(llm_data["short_chain_qa"], question)
     response = sanity_check(question, response)
+    response["source_documents"].sort(key = lambda x:x.metadata["start_time"])
+    transcripts = [doc.metadata['transcript'] for doc in response["source_documents"]]
+    final_transcript = ' '.join(transcripts)
+    summary = summarizer(question, final_transcript, llm_data['metadata']['youtube_video_title'])
     generate_output_json(reply, response, llm_data["metadata"], llm_data["transcript"], llm_data["output_file"])
+    return summary

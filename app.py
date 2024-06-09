@@ -22,11 +22,10 @@ def first_prompt_function(task_id):
     transcribe_video(gen_tasks[task_id]["youtube-url"], task_id)
     refine_trascript("raw_transcripts/" + task_id + ".json", video_path, "refine_transcripts/" + task_id + ".json")
     gen_tasks[task_id]["llm-data"] = gpt4o_conv_qas(f"refine_transcripts/{task_id}.json", task_id)
-    gpt4o_conv_chain(gen_tasks[task_id]["prompt"], gen_tasks[task_id]["llm-data"])
+    gen_tasks[task_id]["summary"] = gpt4o_conv_chain(gen_tasks[task_id]["prompt"], gen_tasks[task_id]["llm-data"])
     generate_clipped_video(video_path, gen_tasks[task_id]["llm-data"]["output_file"], output_video_path)
     gen_tasks[task_id]["video-url"] = f"static/output_videos/{task_id}_{gen_tasks[task_id]['num_videos']}.mp4"
     gen_tasks[task_id]["num_videos"] += 1
-    gen_tasks[task_id]["summary"] = "SUMMARY HERE for "+task_id
     gen_tasks[task_id]["status"] = "complete"
     return
 
@@ -34,11 +33,10 @@ def first_prompt_function(task_id):
 def revise_prompt_function(task_id):
     video_path = f"videos/{task_id}.mp4"
     output_video_path = f"static/output_videos/{task_id}_{str(gen_tasks[task_id]['num_videos'])}.mp4"
-    gpt4o_conv_chain(gen_tasks[task_id]["feedback-chain"], gen_tasks[task_id]["llm-data"])
+    gen_tasks[task_id]["summary"] = gpt4o_conv_chain(gen_tasks[task_id]["feedback-chain"], gen_tasks[task_id]["llm-data"])
     generate_clipped_video(video_path, gen_tasks[task_id]["llm-data"]["output_file"], output_video_path)
     gen_tasks[task_id]["video-url"] = f"static/output_videos/{task_id}_{gen_tasks[task_id]['num_videos']}.mp4"
     gen_tasks[task_id]["num_videos"] += 1
-    gen_tasks[task_id]["summary"] = "SUMMARY HERE for "+task_id
     gen_tasks[task_id]["status"] = "complete"
     return
 
