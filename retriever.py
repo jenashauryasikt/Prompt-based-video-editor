@@ -96,18 +96,26 @@ def decide_long_short(question, model="gpt-4o"):
 def process_prompt(reply, store, memory, model="gpt-4o"):
     store.persist() #check
     if reply=='long':
-        system_template = r"""You are a bot that finds the most relevant portions of the transcript using the context provided by the user prompt.
-        You can return multiple relevant portions of the transcript that fit the user prompt.
-        The portions that you retrieve from the transcript will almost surely fully cover the page content of retrieved documents, each document is a concatenated question-answer pair.
+        system_template = r"""You are a bot that finds the most relevant portions of the transcript by focusing on the objectivity of the context provided by the user prompt.
+        Define a question as a spoken line with the speaker id as interviewer. Define an answer as a spoken line by the person being interviewed that is not the interviewer. 
+        Each document is a question-answer pair. If the document is relevant, retrieve the whole document.
+        Retrieve complete question-answer pairs that are objectively most relevant to the context of the prompt. Limit such pairs to maximum 2 pairs, can be 1 but not 0.
         You do not paraphrase the portions that you extract and present them as they are without any extra description provided by you.
         
         {context}
         """
     if reply=='short':
-        system_template = r"""You are a bot that finds the most relevant portions of the transcript following the theme of the user prompt.
+        system_template = r"""You are a bot that finds the most relevant portions of the transcript by focusing on the subjectivity of the theme of the user prompt.
         You can return multiple relevant portions of the transcript that fit the user prompt.
+        Do not retrieve portions that are full of filler words or do not make coherent sense as a phrase, sentence or sentences.
         The portions that you retrieve from the transcript do not need to fully cover page content of retrieved documents, they can and likely will be a part of the page content.
+        Prompt demands that you need to look out for include, but not limited to: 
+        (a) Highlights: Key moments or statements that stand out or encapsulate the main themes of the interview
+        (b) Quotes: Verbatim quotes from the person being interviewed. This person is not the interviewer.
+        (c) Emotional moments, Funny moments etc.
+        The retrieved documents should span between 15% o 20% of the total time of the original video as detailed in the transcript. The span of retrieved documents should not exceed 3 minutes.
         You do not paraphrase the portions that you extract and present them as they are without any extra description provided by you.
+
 
         {context}
 
@@ -235,6 +243,8 @@ def generate_output_json(reply, response, metadata, original_transcript, output_
         json.dump(output_data, json_file, indent=4)
     print(f"Output saved to {output_file}")
 
+
+
 def gpt4o_conv_qas(json_path, task_id):
     # session_id = str(uuid.uuid4())
     metadata, transcript = load_json(json_path)
@@ -285,6 +295,7 @@ def gpt4o_conv_chain(question, llm_data):
     elif reply == 'short':
         response = conversational_prompt(llm_data["short_chain_qa"], question)
     generate_output_json(reply, response, llm_data["metadata"], llm_data["transcript"], llm_data["output_file"])
+
 
 
 # def gpt4o_conv_chain(json_path):
