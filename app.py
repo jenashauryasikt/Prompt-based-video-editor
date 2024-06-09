@@ -1,11 +1,26 @@
 from flask import Flask, render_template, jsonify, request
 import threading
 import time
+import os.path
 
 from aws_transcribe import *
 from transcript_speaker_detect import *
 from retriever import *
 from video_clipper import *
+
+paths = ["audios","videos","clips","raw_transcripts","refine_transcripts","static/output_videos"]
+
+for directory in paths:
+    if os.path.exists(directory):
+        try:
+            files = os.listdir(directory)
+            for file_name in files:
+                file_path = os.path.join(directory, file_name)
+                os.remove(file_path)
+        except OSError:
+            print("OSError")
+    else:
+        os.makedirs(directory)
 
 app = Flask(__name__)
 random_generate_reel_string = "ABCDE"

@@ -6,11 +6,15 @@ function copy_text(url){
 }
 
 function share_twitter(url,text) {
-    window.open('http://twitter.com/share?url='+window.location.href+url.substring(1)+'&text='+text, '_blank');
+    console.log("here");
+    if(text.length>170) {
+        text = text.substring(0,170) + "... ";
+    }
+    window.open('http://twitter.com/share?url='+window.location.href+url+'&text=Video Link: '+text, '_blank');
 }
 
 function share_facebook(url,text) {
-    window.open('https://www.facebook.com/sharer/sharer.php?u=' + window.location.href+url.substring(1),'_blank')
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + window.location.href+url,'_blank')
 }
 
 function add_user_chat(chat_to_add) {
@@ -46,10 +50,10 @@ function add_chat_response(video_url, summary) {
         <button class="btn" onclick="copy_text('` + video_url + `')">
             <i class="bi bi-clipboard"></i>
         </button>
-        <button class="btn" onclick="share_twitter('` + video_url + `','` + summary + `');">
+        <button class="btn" onclick='share_twitter("` + video_url + `","");'>
             <i class="bi bi-twitter"></i>
         </button>
-        <button class="btn" onclick="share_facebook('` + video_url + `','` + summary + `')">
+        <button class="btn" onclick='share_facebook("` + video_url + `","");'>
             <i class="bi bi-facebook"></i>
         </button>
     </div>

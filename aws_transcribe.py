@@ -117,7 +117,7 @@ def extract_human_names(transcript_text):
     
     return list(human_names)
 
-def transcribe_video(youtube_url, task_id, bucket_name="press-hack"):
+def transcribe_video(youtube_url, task_id, bucket_name="press-hacks"):
     yt = YouTube(youtube_url)
     pre_title = yt.title
     title = sanitize_name(pre_title.replace(' ', '_'))
