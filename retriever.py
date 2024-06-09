@@ -57,7 +57,8 @@ def store_transcript_as_vectorstore(transcript):
             else:
                 pass
         if content is not None:
-            documents.append(Document(page_content=content, metadata=transcript[i+1]))
+            if i < len(transcript) - 1:
+                documents.append(Document(page_content=content, metadata=transcript[i+1]))
 
     # documents = [Document(page_content=item['transcript'], metadata=item) for item in transcript]
     embeddings = OpenAIEmbeddings()
@@ -110,10 +111,10 @@ def process_prompt(reply, store, memory, model="gpt-4o"):
         Do not retrieve portions that are full of filler words or do not make coherent sense as a phrase, sentence or sentences.
         The portions that you retrieve from the transcript do not need to fully cover page content of retrieved documents, they can and likely will be a part of the page content.
         Prompt demands that you need to look out for include, but not limited to: 
-        (a) Highlights: Key moments or statements that stand out or encapsulate the main themes of the interview
+        (a) Highlights: Key statements and prominent answers that encapsulate the main themes of the transcript.
         (b) Quotes: Verbatim quotes from the person being interviewed. This person is not the interviewer.
-        (c) Emotional moments, Funny moments etc.
-        The retrieved documents should span between 15% o 20% of the total time of the original video as detailed in the transcript. The span of retrieved documents should not exceed 3 minutes.
+        (c) Emotional lines, Funny lines etc.
+        The retrieved documents should span strictly between 40% to 45% of the total time of the original video as detailed in the transcript.
         You do not paraphrase the portions that you extract and present them as they are without any extra description provided by you.
 
 
@@ -288,69 +289,50 @@ def gpt4o_conv_qas(json_path, task_id):
         "output_file": output_file
     }
 
+def sanity_check(prompt, response, model="gpt-4o"):
+    template = r"""You are an expert sanity checker bot for a sport press conference summarization and Highlight Generation tool.
+    In this tool, the user gives a prompt about how the press conference should be summarized or what highlights should be generated.
+    You will be given both the original prompt and the response of the tool and decide whether the response is relevant to the prompt in the most accurate and concise way possible.
+    If the response is relevant to the prompt, then return the response["source_documents"] as an array. Do not make any changes to the response.
+    If the response is not relevant to the prompt, then remove the document object within the response that is not relevant to the prompt and return only the updated response["source_documents"] as an array and nothing else.
+    If you are unsure about relevance, then return the response as is.
+
+    Example of final response object to be returned = '''[doc1, doc2, doc3]''', where each doc is a langchain.schema.Document object converted into a JSON object.
+
+    A good removal of a document object  = '''[doc1, doc3]''', where doc2 is not relevant to the prompt.
+
+    Prompt: {prompt}
+    Response: {response}
+    """
+    print("response: ", response, '\n')
+    PROMPT = PromptTemplate(
+        template=template, input_variables=["prompt", "response"]
+    )
+    llm = ChatOpenAI(temperature=0, model=model)
+    checker = LLMChain(
+        llm=llm,
+        prompt=PROMPT
+        )
+    final_response = checker.run({"prompt": prompt, "response": response})
+
+    data = json.loads(final_response[3:-3])
+
+    # Convert each dictionary in the list to a Document object
+    documents = [Document(page_content=item['page_content'], metadata=item['metadata']) for item in data]
+
+    # Verify the output
+
+    final_response = {
+        "source_documents": documents
+    } 
+  
+    return final_response
+
 def gpt4o_conv_chain(question, llm_data):
     reply = decide_long_short(question)
     if reply == 'long':
         response = conversational_prompt(llm_data["long_chain_qa"], question)
     elif reply == 'short':
         response = conversational_prompt(llm_data["short_chain_qa"], question)
+    response = sanity_check(question, response)
     generate_output_json(reply, response, llm_data["metadata"], llm_data["transcript"], llm_data["output_file"])
-
-
-
-# def gpt4o_conv_chain(json_path):
-#     # session_id = str(uuid.uuid4())
-#     metadata, transcript = load_json(json_path)
-#     store = store_transcript_as_vectorstore(transcript)
-    
-#     # SQL for chat memory 
-#     long_db_uri = 'sqlite:///chat_memory_long.db'
-#     long_session_id = str(uuid.uuid4())
-#     long_memory = ConversationBufferMemory(
-#         chat_memory=SQLChatMessageHistory(
-#             session_id=long_session_id,
-#             connection_string=long_db_uri,
-#             table_name="chat_messages"
-#         ),
-#         memory_key="chat_history",
-#         return_messages=True
-#     )
-
-#     short_db_uri = 'sqlite:///chat_memory_short.db'
-#     short_session_id = str(uuid.uuid4())
-#     short_memory = ConversationBufferMemory(
-#         chat_memory=SQLChatMessageHistory(
-#             session_id=short_session_id,
-#             connection_string=short_db_uri,
-#             table_name="chat_messages"
-#         ),
-#         memory_key="chat_history",
-#         return_messages=True
-#     )
-
-#     question = input("Enter your prompt (type 'end' to quit the process): ")
-#     reply = decide_long_short(question)
-
-#     long_chain_qa = process_prompt(reply='long', store=store, memory=long_memory)
-#     short_chain_qa = process_prompt(reply='short', store=store, memory=short_memory)
-
-#     pre_title = metadata.get('youtube_video_title', 'output')
-#     title = sanitize_name(pre_title.replace(' ', '_'))
-#     output_file = f"clipped_{title}.json"
-
-#     while True:
-#         if question.lower() == "end":
-#             break
-#         if reply == 'long':
-#             response = conversational_prompt(long_chain_qa, question)
-#         elif reply == 'short':
-#             response = conversational_prompt(short_chain_qa, question)
-#         generate_output_json(reply, response, metadata, transcript, output_file)
-#         # prepare next query
-#         question = input("Enter your desired modification (type 'end' to quit the process): ")
-#         reply = decide_long_short(question)
-            
-# Example usage
-# if __name__ == "__main__":
-#     json_path = 'files/Erik_ten_Hag_embargoed_pre-match_press_conference___Chelsea_v_Manchester_United.json'  # Update this path to your input JSON file
-#     gpt4o_conv_chain(json_path)

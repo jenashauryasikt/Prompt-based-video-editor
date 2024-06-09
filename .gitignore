@@ -7,3 +7,4 @@ clips/
 __pycache__/
 *.db
 .DS_Store
+static/output_videos/
