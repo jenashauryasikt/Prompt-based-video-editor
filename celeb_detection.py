@@ -7,7 +7,7 @@ from collections import defaultdict
 
 
 class CelebrityDetection:
-    def __init__(self, aws_access_key, aws_secret_key, aws_region='us-east-2', confidence_threshold=85, frames_per_speaker=20, debug=False):
+    def __init__(self, aws_access_key, aws_secret_key, aws_region='us-west-2', confidence_threshold=85, frames_per_speaker=20, debug=False):
         os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key
         os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_key
         os.environ['AWS_DEFAULT_REGION'] = aws_region
@@ -136,6 +136,7 @@ class CelebrityDetection:
         return speaker_celebrities
 
 def test1():
+    ## Enter your AWS credentials here
     aws_access_key = 'AKIA6ODU75CFLURRGWGH'
     aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
     video_path = 'downloads/Post-Qualifying Drivers Press conference  2024 Monaco Grand Prix.mp4'
@@ -146,6 +147,7 @@ def test1():
     detected_speakers = detector.assign_speakers_save(video_path, intervals_path, output_file)
 
 def test2():
+    # Enter your AWS credentials here
     aws_access_key = 'AKIA6ODU75CFLURRGWGH'
     aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
     video_path = 'video/Tiger Woods returns to Augusta National  Press Conference  CBS Sports.mp4'
@@ -157,8 +159,4 @@ def test2():
 
     detector = CelebrityDetection(aws_access_key, aws_secret_key, debug=False)
     detected_speakers = detector.assign_speakers_return(video_path, intervals)
-
-if __name__ == "__main__":
-    # test1()
-    pass
-
+    print(detected_speakers)

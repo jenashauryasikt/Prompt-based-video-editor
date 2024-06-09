@@ -127,7 +127,7 @@ def test():
     speaker_intervals = trans_detector.get_speaker_intervals()
     print(speaker_intervals)
 
-
+    ## Enter your own aws access key and secret key
     aws_access_key = 'AKIA6ODU75CFLURRGWGH'
     aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
     celeb_detector = CelebrityDetection(aws_access_key, aws_secret_key)
@@ -135,9 +135,7 @@ def test():
     print(detected_speakers)
 
     trans_detector.refine_transcript(detected_speakers=detected_speakers, save_file_path=save_file_path)
-
     return
-
 
 def test2():
 
@@ -149,7 +147,7 @@ def test2():
     speaker_intervals = trans_detector.get_speaker_intervals()
     print(speaker_intervals)
 
-
+    ## Enter your own aws access key and secret key
     aws_access_key = 'AKIA6ODU75CFLURRGWGH'
     aws_secret_key = 'T1sa2oXa/QEB1bIi5m2wvSFGOxzdYbSapT4dV92g'
     celeb_detector = CelebrityDetection(aws_access_key, aws_secret_key)
@@ -157,7 +155,6 @@ def test2():
     print(detected_speakers)
 
     trans_detector.refine_transcript(detected_speakers=detected_speakers, save_file_path=save_file_path)
-
     return
 
 
@@ -166,13 +163,13 @@ def refine_trascript(transcript_file_path, video_file_path, save_file_path):
     trans_detector = TranscriptSpeakerDetector(transcript_path=transcript_file_path)
     speaker_intervals = trans_detector.get_speaker_intervals()
 
+    ## Enter your own aws access key and secret key
     aws_access_key = 'AKIAR57MVXEGMXIW5VUA'
     aws_secret_key = 's15IWB4QJ7ag+aRBR7XmCVnSovGYAMjezcBtkzi9'
     celeb_detector = CelebrityDetection(aws_access_key, aws_secret_key)
     detected_speakers  = celeb_detector.assign_speakers_return(video_file_path, speaker_intervals)
 
     trans_detector.refine_transcript(detected_speakers=detected_speakers, save_file_path=save_file_path)
-
     return
 
 
