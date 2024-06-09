@@ -47,6 +47,11 @@ def revise_prompt_function(task_id):
 def home():
     return render_template('index.html')
 
+# Route to serve the HTML page
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 # Generate a response
 @app.route('/generate-reel', methods=['POST'])
 def generate_reel():

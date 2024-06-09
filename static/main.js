@@ -1,12 +1,24 @@
 document.getElementById("chatbox").style.display="none";
 var task_id = "";
 
+function copy_text(url){
+    navigator.clipboard.writeText(window.location.href + url);
+}
+
+function share_twitter(url,text) {
+    window.open('http://twitter.com/share?url='+window.location.href+url.substring(1)+'&text='+text, '_blank');
+}
+
+function share_facebook(url,text) {
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + window.location.href+url.substring(1),'_blank')
+}
+
 function add_user_chat(chat_to_add) {
     var new_ele = document.createElement("div");
-    new_ele.classList.add("mb-2");
+    new_ele.classList.add("mb-3");
     new_ele.classList.add("row");
     new_ele.classList.add("justify-content-end");
-    new_ele.innerHTML = `<div class="chat-user col-auto me-1" style="max-width: 70%; text-align: center;">
+    new_ele.innerHTML = `<div class="chat-user col-auto me-1" style="max-width: 60%; text-align: center;">
     ` + chat_to_add + `
 </div>
 <div class="col-sm-1 text-start ps-0">
@@ -17,30 +29,27 @@ function add_user_chat(chat_to_add) {
 }
 
 function add_chat_response(video_url, summary) {
-    //TODO: Update share and copy links
     var new_ele = document.createElement("div");
-    new_ele.classList.add("mb-2");
+    new_ele.classList.add("mb-3");
     new_ele.classList.add("row");
     new_ele.classList.add("justify-content-start");
     new_ele.innerHTML = `<div class="col-sm-1 text-end pe-0">
-    <div class="chat-response-icon">AI</div>
+    <div class="chat-response-icon"><i class="bi bi-robot"></i></div>
 </div>
-<div class="chat-response col-auto ms-1" style="max-width: 70%; text-align: center;">
+<div class="chat-response col-auto ms-1" style="max-width: 60%; text-align: center;">
     <video width="100%" controls>
         <source src="`+ video_url +`" type="video/mp4">
         Its not working
     </video>
     <div class="video-share-btns">
-        <button class="btn">
+        <span style="display:none;" id="` + video_url + `">`+video_url+`</span>
+        <button class="btn" onclick="copy_text('` + video_url + `')">
             <i class="bi bi-clipboard"></i>
         </button>
-        <button class="btn">
+        <button class="btn" onclick="share_twitter('` + video_url + `','` + summary + `');">
             <i class="bi bi-twitter"></i>
         </button>
-        <button class="btn">
-            <i class="bi bi-instagram"></i>
-        </button>
-        <button class="btn">
+        <button class="btn" onclick="share_facebook('` + video_url + `','` + summary + `')">
             <i class="bi bi-facebook"></i>
         </button>
     </div>
@@ -48,6 +57,27 @@ function add_chat_response(video_url, summary) {
 </div>`;
     document.getElementById("chat-store").appendChild(new_ele);
     setTimeout(load_chat_top,200);
+}
+
+function add_gif() {
+    var new_ele = document.createElement("div");
+    new_ele.id = "loading-gif";
+    new_ele.classList.add("mb-3");
+    new_ele.classList.add("row");
+    new_ele.classList.add("justify-content-start");
+    new_ele.innerHTML = `<div class="col-sm-1 text-end pe-0">
+    <div class="chat-response-icon"><i class="bi bi-robot"></i></div>
+</div>
+<div class="chat-response col-auto ms-1" style="max-width: 60%; text-align: center;">
+    <img src="/static/loading.gif" height="25px">
+</div>`;
+    document.getElementById("chat-store").appendChild(new_ele);
+    setTimeout(load_chat_top,200);
+
+}
+
+function remove_gif() {
+    document.getElementById("loading-gif").remove();
 }
 
 function load_chat_top() {
@@ -84,7 +114,7 @@ async function get_response_data() {
 }
 
 async function wait_for_server() {
-    //TODO: Add gif
+    add_gif();
     document.getElementById("feedback-text").disabled=true;
     document.getElementById("feedback-text").placeholder="Patience is the key...";
     console.log("in wait_for_server")
@@ -100,6 +130,7 @@ async function wait_for_server() {
             const result = await response.json();
             console.log("wait_for_server result",result);
             if(result["status"]=="complete"){
+                remove_gif();
                 document.getElementById("feedback-text").placeholder="Feedback Prompt";
                 document.getElementById("feedback-text").disabled=false;
                 clearInterval(intervalId);
