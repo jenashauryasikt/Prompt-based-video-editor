@@ -1,0 +1,109 @@
+/*  */
+
+.fadeout{
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}
+
+.center-container {
+    height: calc(100vh - 56px); /* Adjust for navbar height */
+    flex-direction: column;
+}
+
+.intro{
+    text-align: center;
+}
+
+.invalid-input{
+    display: none;
+    color: red;
+}
+#chatbox{
+    background-color: rgb(255, 255, 255);
+}
+
+.chats{
+    background-color: white;
+    height: calc(100vh - 56px - 63px);
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.chat-user-icon{
+    background-color: rgb(239, 239, 239);
+    color: rgb(50, 50, 50);
+    display: inline;
+    font-size: 25px;
+    padding-top: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    border-radius: 20px;
+    border-top-left-radius: 0;
+}
+
+.chat-user{
+    background-color: rgb(239, 239, 239);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border-top-right-radius: 0;
+    margin-right: 10px;
+}
+
+.chat-response-icon{
+    background-color: rgb(189, 189, 189);
+    color: rgb(50, 50, 50);
+    display: inline;
+    font-size: 25px;
+    padding-top: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    border-radius: 20px;
+    border-top-right-radius: 0;
+}
+
+.chat-response{
+    background-color: rgb(189, 189, 189);
+    padding: 20px 20px;
+    border-radius: 20px;
+    border-top-left-radius: 0;
+    margin-left: 10px;
+}
+
+.og-video-link{
+    color: rgb(96, 96, 96);
+}
+.og-video-link:hover{
+    color: black;
+    font-weight: 600s;
+}
+
+.video-share-btns button{
+    color: rgb(104, 104, 104);
+    font-size: 24px;
+    margin: 5px 20px;
+    border: gray 2px solid;
+    border-radius: 30px;
+}
+
+.video-share-btns button:hover{
+    color: black;
+    border: black 2px solid;
+    border-radius: 30px;
+}
+
+.new-chat-btn{
+    background-color: rgb(171, 170, 170) !important;
+    color: black;
+    border-top-right-radius: 7px !important;
+    border-bottom-right-radius: 7px !important;
+}
+.new-chat-btn:hover{
+    background-color: gray !important;
+    color: black !important;
+}
+
+.prompt-box{
+    padding-bottom: 25px;
+}
