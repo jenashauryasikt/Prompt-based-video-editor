@@ -21,14 +21,15 @@ from huggingface_hub import login
 # Load spaCy's English language model
 nlp = spacy.load("en_core_web_sm")
 
-# Set OpenAI API key
-os.environ['OPENAI_API_KEY'] = 'your_key'
+# Retrieve the Hugging Face access token from the environment variable
+hf_access_token = os.environ.get("HF_ACCESS_TOKEN")
 
-# Set Hugging Face API key
-hf_access_token = "your_key"
-os.environ["HF_ACCESS_TOKEN"] = hf_access_token
-
-login(hf_access_token)
+# Log in to Hugging Face using the access token
+if hf_access_token:
+    login(hf_access_token)
+    print("Logged in to Hugging Face")
+else:
+    print("Hugging Face access token not found in environment variables")
 
 # Load the JSON file and extract metadata and transcript
 def load_json(file_path):
