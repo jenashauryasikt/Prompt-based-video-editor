@@ -7,10 +7,7 @@ from collections import defaultdict
 
 
 class CelebrityDetection:
-    def __init__(self, aws_access_key, aws_secret_key, aws_region='us-west-2', confidence_threshold=85, frames_per_speaker=20, debug=False):
-        os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key
-        os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_key
-        os.environ['AWS_DEFAULT_REGION'] = aws_region
+    def __init__(self, confidence_threshold=85, frames_per_speaker=20, debug=False):
         self.client = boto3.client('rekognition')
         self.confidence_threshold = confidence_threshold
         self.frames_per_speaker = frames_per_speaker
@@ -136,20 +133,16 @@ class CelebrityDetection:
         return speaker_celebrities
 
 def test1():
-    ## Enter your AWS credentials here
-    aws_access_key = 'your_key'
-    aws_secret_key = 'your_key'
+    
     video_path = 'downloads/Post-Qualifying Drivers Press conference  2024 Monaco Grand Prix.mp4'
     intervals_path = 'speaker_intervals.json'
     output_file = 'final_output.json'
 
-    detector = CelebrityDetection(aws_access_key, aws_secret_key, debug=True)
+    detector = CelebrityDetection(debug=True)
     detected_speakers = detector.assign_speakers_save(video_path, intervals_path, output_file)
 
 def test2():
-    # Enter your AWS credentials here
-    aws_access_key = 'your_key'
-    aws_secret_key = 'your_key'
+    
     video_path = 'video/Tiger Woods returns to Augusta National  Press Conference  CBS Sports.mp4'
     intervals_path = 'speaker_intervals.json'
     output_file = 'final_output_tiger.json'
@@ -157,6 +150,6 @@ def test2():
     with open(intervals_path, 'r') as file:
         intervals = json.load(file)
 
-    detector = CelebrityDetection(aws_access_key, aws_secret_key, debug=False)
+    detector = CelebrityDetection(debug=False)
     detected_speakers = detector.assign_speakers_return(video_path, intervals)
     print(detected_speakers)
