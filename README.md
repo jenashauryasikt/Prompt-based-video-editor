@@ -20,13 +20,12 @@
 7. Install dependencies: ``conda install -c conda-forge openai chromadb langchain langchain-core langchain-community langchain-text-splitters``
 8. Install more dependencies: ``conda install -c conda-forge opencv``
 9. Install more dependencies: ``conda install -c conda-forge numpy matplotlib scipy flask imageio imageio-ffmpeg``
-10. Before execution, remember to use your own tokens and keys in these code lines:
+10. Before execution, remember to set your Hugging Face access token and OpenAI access token as environment varibles:
 
-    1. -``aws_transcribe.py``: Lines 19, 20, 21
-    2. -``celeb_detection.py``: Lines 140, 141, 151, 152
-    3. -``transcript_speaker_detect.py``: Lines 131, 132, 151, 152
-    4. -``retriever.py``: Lines 25, 28
-11. Sequence of python scripts in execution when the tool is run via ``app.py``:
+    1. -``export OPENAI_API_KEY=your_key``
+    2. -``export HF_ACCESS_TOKEN=your_key``
+
+11. Sequence of python scripts in execution when the tool is run via ``app.py`` in the activated environment, open the link that pops up in the terminal for UI:
 
     1. -``aws_transcribe.py``
     2. -``transcript_speaker_detect.py`` calls from ``celeb_detection.py``
