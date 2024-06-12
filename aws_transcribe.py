@@ -15,11 +15,6 @@ import spacy
 # Load spaCy's English language model
 nlp = spacy.load("en_core_web_sm")
 
-## Set AWS credentials
-# os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key
-# os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_key
-# os.environ['AWS_DEFAULT_REGION'] = aws_region
-
 # Function to sanitize the job name
 def sanitize_name(name):
     return re.sub(r'[^0-9a-zA-Z._-]', '_', name)
